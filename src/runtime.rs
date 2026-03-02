@@ -25,14 +25,14 @@ async fn shutdown_signal() -> &'static str {
 use crate::channel_adapter::ChannelRegistry;
 #[cfg(feature = "telegram")]
 use crate::channels::telegram::TelegramChannelConfig;
-#[cfg(feature = "telegram")]
-use crate::channels::TelegramAdapter;
 #[cfg(feature = "discord")]
 use crate::channels::DiscordAdapter;
-#[cfg(feature = "slack")]
-use crate::channels::SlackAdapter;
 #[cfg(feature = "feishu")]
 use crate::channels::FeishuAdapter;
+#[cfg(feature = "slack")]
+use crate::channels::SlackAdapter;
+#[cfg(feature = "telegram")]
+use crate::channels::TelegramAdapter;
 use crate::config::Config;
 use crate::db::Database;
 use crate::embedding::EmbeddingProvider;
@@ -253,13 +253,21 @@ pub async fn run(
         #[allow(unused_mut)]
         let mut active = false;
         #[cfg(feature = "web")]
-        { active = active || state.config.web_enabled; }
+        {
+            active = active || state.config.web_enabled;
+        }
         #[cfg(feature = "discord")]
-        { active = active || discord_token.is_some(); }
+        {
+            active = active || discord_token.is_some();
+        }
         #[cfg(feature = "slack")]
-        { active = active || has_slack; }
+        {
+            active = active || has_slack;
+        }
         #[cfg(feature = "feishu")]
-        { active = active || has_feishu; }
+        {
+            active = active || has_feishu;
+        }
         active
     };
 
