@@ -7,6 +7,7 @@
 [![Website](https://img.shields.io/badge/Website-rayclaw.ai-blue)](https://rayclaw.ai)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/pPXpgN5J)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Desktop App](https://img.shields.io/badge/Desktop_App-Tauri-24C8D8?logo=tauri&logoColor=white)](https://github.com/rayclaw/rayclaw-desktop)
 
 
 <p align="center">
@@ -26,6 +27,7 @@ RayClaw is a multi-channel agentic AI runtime written in Rust. It connects to Te
 
 - [How it works](#how-it-works)
 - [Install](#install)
+- [Desktop App](#desktop-app)
 - [Use as Rust crate](#use-as-rust-crate)
 - [Features](#features)
 - [Tools](#tools)
@@ -104,6 +106,16 @@ sqlite3 rayclaw.data/runtime/rayclaw.db "SELECT id, chat_id, chat_channel, exter
 In `setup`, set:
 - `embedding_provider` = `openai` or `ollama`
 - provider credentials/base URL/model as needed
+
+## Desktop App
+
+[**RayClaw Desktop**](https://github.com/rayclaw/rayclaw-desktop) is a native desktop client built with Tauri 2 + React. It provides a full-featured GUI for chatting with your agent, managing SOUL.md personality, skills, memory, usage analytics, and scheduled tasks — all without running the CLI.
+
+```sh
+git clone https://github.com/rayclaw/rayclaw-desktop.git
+cd rayclaw-desktop
+npm install && cargo tauri dev
+```
 
 ## Use as Rust crate
 
