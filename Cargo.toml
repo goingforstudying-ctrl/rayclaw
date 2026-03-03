@@ -41,8 +41,8 @@ urlencoding = "2"
 base64 = "0.22"
 chrono-tz = "0.10"
 axum = { version = "0.7", optional = true }
-ratatui = { version = "0.29", default-features = false, features = ["crossterm"] }
-crossterm = "0.28"
+dialoguer = "0.11"
+console = "0.15"
 serenity = { version = "0.12", default-features = false, features = ["client", "gateway", "model", "cache", "rustls_backend"], optional = true }
 include_dir = "0.7"
 async-stream = "0.3"

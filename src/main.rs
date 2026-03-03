@@ -1,7 +1,8 @@
 use rayclaw::config::Config;
 use rayclaw::error::RayClawError;
 use rayclaw::{
-    acp, builtin_skills, db, doctor, gateway, logging, mcp, memory, runtime, setup, skills, update,
+    acp, builtin_skills, db, doctor, gateway, logging, mcp, memory, runtime, setup_wizard, skills,
+    update,
 };
 use std::path::Path;
 use tracing::info;
@@ -18,6 +19,9 @@ Usage:
 Commands:
   start      Launch the agent runtime (all enabled channels)
   setup      Interactive setup wizard (creates rayclaw.config.yaml)
+               --force      Overwrite existing config without prompting
+               --provider   Update only LLM provider/model/key
+               --channels   Update only channel configuration
   doctor     Run preflight environment checks
   gateway    Service lifecycle (install / start / stop / status / logs)
   update     Check for updates and self-update the binary
@@ -117,10 +121,12 @@ async fn main() -> anyhow::Result<()> {
             return Ok(());
         }
         Some("setup") => {
-            let saved = setup::run_setup_wizard()?;
-            if saved {
-                println!("Setup saved to rayclaw.config.yaml");
-            } else {
+            let rest = &args[2..];
+            let force = rest.iter().any(|a| a == "--force");
+            let provider_only = rest.iter().any(|a| a == "--provider");
+            let channels_only = rest.iter().any(|a| a == "--channels");
+            let saved = setup_wizard::run_setup_wizard(force, provider_only, channels_only)?;
+            if !saved {
                 println!("Setup canceled");
             }
             return Ok(());
@@ -153,7 +159,7 @@ async fn main() -> anyhow::Result<()> {
         Err(RayClawError::Config(e)) => {
             eprintln!("Config missing/invalid: {e}");
             eprintln!("Launching setup wizard...");
-            let saved = setup::run_setup_wizard()?;
+            let saved = setup_wizard::run_setup_wizard(false, false, false)?;
             if !saved {
                 return Err(anyhow::anyhow!(
                     "setup canceled and config is still incomplete"
