@@ -262,6 +262,7 @@ mod tests {
             aws_profile: None,
             soul_path: None,
             skip_tool_approval: false,
+            skills_dir: None,
             channels: std::collections::HashMap::new(),
         }
     }

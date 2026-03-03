@@ -227,6 +227,13 @@ pub struct Config {
     #[serde(default = "default_skip_tool_approval")]
     pub skip_tool_approval: bool,
 
+    /// Override the skills directory path. When set, `skills_data_dir()` returns
+    /// this value instead of computing `{data_dir}/skills`. Useful when `data_dir`
+    /// is repointed (e.g. to a runtime subdirectory) but skills remain at the
+    /// original data root.
+    #[serde(default)]
+    pub skills_dir: Option<String>,
+
     // --- Channel registry (new dynamic config) ---
     /// Per-channel configuration. Keys are channel names (e.g. "telegram", "discord", "slack", "web").
     /// Each value is channel-specific config deserialized by the adapter.
@@ -261,8 +268,11 @@ impl Config {
             .to_string()
     }
 
-    /// Skills directory under data root.
+    /// Skills directory. Uses `skills_dir` override if set, otherwise `{data_dir}/skills`.
     pub fn skills_data_dir(&self) -> String {
+        if let Some(ref dir) = self.skills_dir {
+            return dir.clone();
+        }
         self.data_root_dir()
             .join("skills")
             .to_string_lossy()
@@ -630,6 +640,7 @@ mod tests {
             aws_profile: None,
             soul_path: None,
             skip_tool_approval: false,
+            skills_dir: None,
             channels: HashMap::new(),
         }
     }

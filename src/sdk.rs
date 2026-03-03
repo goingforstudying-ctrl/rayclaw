@@ -97,6 +97,7 @@ impl RayClawAgent {
         }
 
         let mut runtime_config = config.clone();
+        runtime_config.skills_dir = Some(skills_data_dir);
         runtime_config.data_dir = runtime_data_dir;
 
         let channel_registry = Arc::new(ChannelRegistry::new());

@@ -251,7 +251,41 @@ fn command_exists(command: &str) -> bool {
     }
 
     let path_var = std::env::var_os("PATH").unwrap_or_default();
-    let paths = std::env::split_paths(&path_var);
+    #[allow(unused_mut)]
+    let mut search_paths: Vec<std::path::PathBuf> = std::env::split_paths(&path_var).collect();
+
+    // On macOS, GUI apps (e.g. Tauri) inherit a minimal PATH that excludes
+    // common binary locations. Augment with well-known directories so that
+    // dependency checks don't spuriously fail.
+    #[cfg(target_os = "macos")]
+    {
+        let extra: &[&str] = &[
+            "/usr/local/bin",
+            "/opt/homebrew/bin",
+            "/opt/homebrew/sbin",
+        ];
+        // Also check ~/.nvm/current/bin, ~/.volta/bin, ~/.local/bin
+        if let Some(home) = std::env::var_os("HOME") {
+            let home = std::path::PathBuf::from(home);
+            let home_extras: Vec<std::path::PathBuf> = vec![
+                home.join(".nvm/current/bin"),
+                home.join(".volta/bin"),
+                home.join(".local/bin"),
+                home.join(".bun/bin"),
+            ];
+            for p in home_extras {
+                if p.is_dir() && !search_paths.contains(&p) {
+                    search_paths.push(p);
+                }
+            }
+        }
+        for p in extra {
+            let pb = std::path::PathBuf::from(p);
+            if pb.is_dir() && !search_paths.contains(&pb) {
+                search_paths.push(pb);
+            }
+        }
+    }
 
     #[cfg(target_os = "windows")]
     let candidates: Vec<String> = {
@@ -276,7 +310,7 @@ fn command_exists(command: &str) -> bool {
     #[cfg(not(target_os = "windows"))]
     let candidates: Vec<String> = vec![command.to_string()];
 
-    for base in paths {
+    for base in search_paths {
         for candidate in &candidates {
             let full = base.join(candidate);
             if full.is_file() {

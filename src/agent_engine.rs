@@ -603,6 +603,18 @@ pub(crate) async fn process_with_agent_impl(
         return Ok("I didn't receive any message to process.".into());
     }
 
+    // Guard: some LLM providers (e.g. AWS Bedrock) reject conversations ending
+    // with an assistant message ("does not support assistant message prefill").
+    // This can happen when a session is resumed after an interrupted request and
+    // no new user messages were appended. Strip trailing assistant-only messages
+    // so the conversation ends on a user turn.
+    while messages.last().map(|m| m.role.as_str()) == Some("assistant") {
+        messages.pop();
+    }
+    if messages.is_empty() {
+        return Ok("I didn't receive any message to process.".into());
+    }
+
     // Compact if messages exceed threshold
     if messages.len() > state.config.max_session_messages {
         archive_conversation(
@@ -1722,6 +1734,7 @@ mod tests {
             aws_profile: None,
             soul_path: None,
             skip_tool_approval: false,
+            skills_dir: None,
             channels: std::collections::HashMap::new(),
         };
         cfg.data_dir = base_dir.to_string_lossy().to_string();
@@ -2065,6 +2078,7 @@ mod tests {
             reflector_enabled: true,
             reflector_interval_mins: 15,
             skip_tool_approval: false,
+            skills_dir: None,
             channels: std::collections::HashMap::new(),
         };
 
@@ -2131,6 +2145,7 @@ mod tests {
             aws_secret_access_key: None,
             aws_session_token: None,
             aws_profile: None,
+            skills_dir: None,
             channels: std::collections::HashMap::new(),
         };
 

@@ -1759,6 +1759,7 @@ mod tests {
             aws_profile: None,
             soul_path: None,
             skip_tool_approval: false,
+            skills_dir: None,
             channels: std::collections::HashMap::new(),
         };
         let dir = std::env::temp_dir().join(format!("rayclaw_webtest_{}", uuid::Uuid::new_v4()));

@@ -2064,6 +2064,7 @@ mod tests {
             aws_profile: None,
             soul_path: None,
             skip_tool_approval: false,
+            skills_dir: None,
             channels: std::collections::HashMap::new(),
         };
         // Should not panic
@@ -2120,6 +2121,7 @@ mod tests {
             aws_profile: None,
             soul_path: None,
             skip_tool_approval: false,
+            skills_dir: None,
             channels: std::collections::HashMap::new(),
         };
         let _provider = create_provider(&config);
@@ -2241,6 +2243,7 @@ mod tests {
             aws_profile: None,
             soul_path: None,
             skip_tool_approval: false,
+            skills_dir: None,
             channels: std::collections::HashMap::new(),
         };
         let provider = OpenAiProvider::new(&config);
@@ -2401,6 +2404,7 @@ mod tests {
             aws_profile: None,
             soul_path: None,
             skip_tool_approval: false,
+            skills_dir: None,
             channels: std::collections::HashMap::new(),
         };
         let provider = OpenAiProvider::new(&config);
