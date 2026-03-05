@@ -259,11 +259,7 @@ fn command_exists(command: &str) -> bool {
     // dependency checks don't spuriously fail.
     #[cfg(target_os = "macos")]
     {
-        let extra: &[&str] = &[
-            "/usr/local/bin",
-            "/opt/homebrew/bin",
-            "/opt/homebrew/sbin",
-        ];
+        let extra: &[&str] = &["/usr/local/bin", "/opt/homebrew/bin", "/opt/homebrew/sbin"];
         // Also check ~/.nvm/current/bin, ~/.volta/bin, ~/.local/bin
         if let Some(home) = std::env::var_os("HOME") {
             let home = std::path::PathBuf::from(home);

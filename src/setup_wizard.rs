@@ -341,7 +341,8 @@ fn ask_nav() -> Result<bool, RayClawError> {
         "  {}    {}",
         style("← Back").green(),
         style("→ Next (Enter)").green(),
-    )).ok();
+    ))
+    .ok();
     // move cursor up one line (above the hint)
     term.move_cursor_up(1).ok();
     loop {
@@ -506,9 +507,10 @@ struct ProviderResult {
     aws_profile: String,
 }
 
-fn step_provider(existing: &HashMap<String, String>) -> Result<StepResult<ProviderResult>, RayClawError> {
+fn step_provider(
+    existing: &HashMap<String, String>,
+) -> Result<StepResult<ProviderResult>, RayClawError> {
     print_step(1, 6, "LLM Provider & Model");
-
 
     let labels: Vec<String> = PROVIDER_PRESETS
         .iter()
@@ -568,8 +570,7 @@ fn step_provider(existing: &HashMap<String, String>) -> Result<StepResult<Provid
     };
 
     // Model selection
-    let mut model_options: Vec<String> =
-        preset.models.iter().map(|m| (*m).to_string()).collect();
+    let mut model_options: Vec<String> = preset.models.iter().map(|m| (*m).to_string()).collect();
     model_options.push("Custom...".to_string());
 
     let existing_model = existing.get("LLM_MODEL").cloned().unwrap_or_default();
@@ -604,10 +605,7 @@ fn step_provider(existing: &HashMap<String, String>) -> Result<StepResult<Provid
 
     // Base URL
     let default_base = if preset.default_base_url.is_empty() {
-        existing
-            .get("LLM_BASE_URL")
-            .cloned()
-            .unwrap_or_default()
+        existing.get("LLM_BASE_URL").cloned().unwrap_or_default()
     } else {
         existing
             .get("LLM_BASE_URL")
@@ -648,7 +646,12 @@ fn step_provider(existing: &HashMap<String, String>) -> Result<StepResult<Provid
 
             let access_key: String = Input::new()
                 .with_prompt("  AWS access key ID (optional)")
-                .default(existing.get("AWS_ACCESS_KEY_ID").cloned().unwrap_or_default())
+                .default(
+                    existing
+                        .get("AWS_ACCESS_KEY_ID")
+                        .cloned()
+                        .unwrap_or_default(),
+                )
                 .allow_empty(true)
                 .interact_text()
                 .map_err(|e| RayClawError::Config(format!("Input canceled: {e}")))?;
@@ -762,9 +765,10 @@ fn channel_options() -> Vec<&'static str> {
     opts
 }
 
-fn step_channels(existing: &HashMap<String, String>) -> Result<StepResult<ChannelResult>, RayClawError> {
+fn step_channels(
+    existing: &HashMap<String, String>,
+) -> Result<StepResult<ChannelResult>, RayClawError> {
     print_step(2, 6, "Channels");
-
 
     let options = channel_options();
     let existing_enabled: Vec<String> = existing
@@ -847,16 +851,10 @@ fn step_channels(existing: &HashMap<String, String>) -> Result<StepResult<Channe
                     .default(bot_username)
                     .interact_text()
                     .map_err(|e| RayClawError::Config(format!("Input canceled: {e}")))?;
-                bot_username = bot_username
-                    .trim()
-                    .trim_start_matches('@')
-                    .to_string();
+                bot_username = bot_username.trim().trim_start_matches('@').to_string();
 
                 // Test connection
-                print!(
-                    "  {} Testing Telegram connection...",
-                    style("⏳").cyan()
-                );
+                print!("  {} Testing Telegram connection...", style("⏳").cyan());
                 match test_telegram_token(&telegram_bot_token) {
                     Ok(actual_username) => {
                         println!(
@@ -907,9 +905,7 @@ fn step_channels(existing: &HashMap<String, String>) -> Result<StepResult<Channe
                             .default(existing_val)
                             .allow_empty(!f.required)
                             .interact_text()
-                            .map_err(|e| {
-                                RayClawError::Config(format!("Input canceled: {e}"))
-                            })?;
+                            .map_err(|e| RayClawError::Config(format!("Input canceled: {e}")))?;
                         dynamic_fields.insert(key, val.trim().to_string());
                     }
                 }
@@ -947,10 +943,7 @@ fn test_telegram_token(token: &str) -> Result<String, String> {
         .map_err(|e| e.to_string())?
         .json()
         .map_err(|e| e.to_string())?;
-    let ok = resp
-        .get("ok")
-        .and_then(|v| v.as_bool())
-        .unwrap_or(false);
+    let ok = resp.get("ok").and_then(|v| v.as_bool()).unwrap_or(false);
     if !ok {
         return Err("Invalid bot token".into());
     }
@@ -977,7 +970,6 @@ fn step_directories(
     existing: &HashMap<String, String>,
 ) -> Result<StepResult<DirectoryResult>, RayClawError> {
     print_step(3, 6, "Data & Directories");
-
 
     let data_dir: String = Input::new()
         .with_prompt("  Data directory")
@@ -1087,9 +1079,10 @@ struct MemoryResult {
     embedding_dim: String,
 }
 
-fn step_memory(existing: &HashMap<String, String>) -> Result<StepResult<MemoryResult>, RayClawError> {
+fn step_memory(
+    existing: &HashMap<String, String>,
+) -> Result<StepResult<MemoryResult>, RayClawError> {
     print_step(4, 6, "Memory");
-
 
     let existing_reflector = existing
         .get("REFLECTOR_ENABLED")
@@ -1195,24 +1188,14 @@ fn step_memory(existing: &HashMap<String, String>) -> Result<StepResult<MemoryRe
 
             let model: String = Input::new()
                 .with_prompt("  Embedding model (optional)")
-                .default(
-                    existing
-                        .get("EMBEDDING_MODEL")
-                        .cloned()
-                        .unwrap_or_default(),
-                )
+                .default(existing.get("EMBEDDING_MODEL").cloned().unwrap_or_default())
                 .allow_empty(true)
                 .interact_text()
                 .map_err(|e| RayClawError::Config(format!("Input canceled: {e}")))?;
 
             let dim: String = Input::new()
                 .with_prompt("  Embedding dimensions (optional)")
-                .default(
-                    existing
-                        .get("EMBEDDING_DIM")
-                        .cloned()
-                        .unwrap_or_default(),
-                )
+                .default(existing.get("EMBEDDING_DIM").cloned().unwrap_or_default())
                 .allow_empty(true)
                 .interact_text()
                 .map_err(|e| RayClawError::Config(format!("Input canceled: {e}")))?;
@@ -1226,9 +1209,18 @@ fn step_memory(existing: &HashMap<String, String>) -> Result<StepResult<MemoryRe
             )
         } else {
             (
-                existing.get("EMBEDDING_PROVIDER").cloned().unwrap_or_default(),
-                existing.get("EMBEDDING_API_KEY").cloned().unwrap_or_default(),
-                existing.get("EMBEDDING_BASE_URL").cloned().unwrap_or_default(),
+                existing
+                    .get("EMBEDDING_PROVIDER")
+                    .cloned()
+                    .unwrap_or_default(),
+                existing
+                    .get("EMBEDDING_API_KEY")
+                    .cloned()
+                    .unwrap_or_default(),
+                existing
+                    .get("EMBEDDING_BASE_URL")
+                    .cloned()
+                    .unwrap_or_default(),
                 existing.get("EMBEDDING_MODEL").cloned().unwrap_or_default(),
                 existing.get("EMBEDDING_DIM").cloned().unwrap_or_default(),
             )
@@ -1339,10 +1331,7 @@ fn perform_online_validation(
             .get(format!("https://api.telegram.org/bot{tg_token}/getMe"))
             .send()?
             .json()?;
-        let ok = tg_resp
-            .get("ok")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false);
+        let ok = tg_resp.get("ok").and_then(|v| v.as_bool()).unwrap_or(false);
         if !ok {
             return Err(RayClawError::Config(
                 "Telegram getMe failed (check bot token)".into(),
@@ -1874,7 +1863,10 @@ fn collect_values(
         );
     }
     if !provider.aws_session_token.is_empty() {
-        values.insert("AWS_SESSION_TOKEN".into(), provider.aws_session_token.clone());
+        values.insert(
+            "AWS_SESSION_TOKEN".into(),
+            provider.aws_session_token.clone(),
+        );
     }
     if !provider.aws_profile.is_empty() {
         values.insert("AWS_PROFILE".into(), provider.aws_profile.clone());
@@ -1911,13 +1903,19 @@ fn collect_values(
         memory.memory_token_budget.to_string(),
     );
     if !memory.embedding_provider.is_empty() {
-        values.insert("EMBEDDING_PROVIDER".into(), memory.embedding_provider.clone());
+        values.insert(
+            "EMBEDDING_PROVIDER".into(),
+            memory.embedding_provider.clone(),
+        );
     }
     if !memory.embedding_api_key.is_empty() {
         values.insert("EMBEDDING_API_KEY".into(), memory.embedding_api_key.clone());
     }
     if !memory.embedding_base_url.is_empty() {
-        values.insert("EMBEDDING_BASE_URL".into(), memory.embedding_base_url.clone());
+        values.insert(
+            "EMBEDDING_BASE_URL".into(),
+            memory.embedding_base_url.clone(),
+        );
     }
     if !memory.embedding_model.is_empty() {
         values.insert("EMBEDDING_MODEL".into(), memory.embedding_model.clone());
@@ -1933,7 +1931,11 @@ fn collect_values(
 // Public entry points
 // ---------------------------------------------------------------------------
 
-pub fn run_setup_wizard(force: bool, provider_only: bool, channels_only: bool) -> Result<bool, RayClawError> {
+pub fn run_setup_wizard(
+    force: bool,
+    provider_only: bool,
+    channels_only: bool,
+) -> Result<bool, RayClawError> {
     print_banner();
 
     let existing = load_existing_config();
@@ -1963,9 +1965,15 @@ pub fn run_setup_wizard(force: bool, provider_only: bool, channels_only: bool) -
         };
         let mut values = existing.clone();
         values.insert("ENABLED_CHANNELS".into(), channel_result.enabled.join(","));
-        values.insert("TELEGRAM_BOT_TOKEN".into(), channel_result.telegram_bot_token.clone());
+        values.insert(
+            "TELEGRAM_BOT_TOKEN".into(),
+            channel_result.telegram_bot_token.clone(),
+        );
         values.insert("BOT_USERNAME".into(), channel_result.bot_username.clone());
-        values.insert("DISCORD_BOT_TOKEN".into(), channel_result.discord_bot_token.clone());
+        values.insert(
+            "DISCORD_BOT_TOKEN".into(),
+            channel_result.discord_bot_token.clone(),
+        );
         for (key, val) in &channel_result.dynamic_fields {
             values.insert(key.clone(), val.clone());
         }
@@ -2051,7 +2059,12 @@ pub fn run_setup_wizard(force: bool, provider_only: bool, channels_only: bool) -
 
     step_validate(&provider_result, &channel_result)?;
 
-    let values = collect_values(&provider_result, &channel_result, &dir_result, &memory_result);
+    let values = collect_values(
+        &provider_result,
+        &channel_result,
+        &dir_result,
+        &memory_result,
+    );
     step_save(&values)?;
     print_summary(&values);
 
@@ -2137,7 +2150,10 @@ mod tests {
 
     #[test]
     fn test_dynamic_field_key() {
-        assert_eq!(dynamic_field_key("slack", "bot_token"), "DYN_SLACK_BOT_TOKEN");
+        assert_eq!(
+            dynamic_field_key("slack", "bot_token"),
+            "DYN_SLACK_BOT_TOKEN"
+        );
         assert_eq!(dynamic_field_key("feishu", "app_id"), "DYN_FEISHU_APP_ID");
     }
 }
